@@ -8,14 +8,28 @@ router.get('/', (req, res) => {
   // find all products
   Product.findAll({
     // be sure to include its associated Category and Tag data
-    
-  });
+    include: [Category, {model: Tag, through: ProductTag}]
+  })
+  .then(
+    product => {res.json(product)}
+  )
+  .catch( err => res.status(500).json(err));
 });
 
 // get one product
 router.get('/:id', (req, res) => {
   // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
+  Product.findOne({
+    // be sure to include its associated Category and Tag data
+    include: [Category, {model: Tag, through: ProductTag}],
+    where: {
+      id: req.params.id
+    }
+  })
+  .then(
+    product => {res.json(product)}
+  )
+  .catch( err => res.status(500).json(err));;
 });
 
 // create new product
@@ -94,6 +108,9 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   // delete one product by its `id` value
+  Product.destroy({where: {id: req.params.id}})
+  .then(product => res.json(product))
+  .catch(err => res.status(404).json({message: "Product not found"}));
 });
 
 module.exports = router;
